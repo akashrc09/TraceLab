@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1018">
+  <title>TraceLab — Digital Forensics Toolkit</title>
+  <link rel="icon" href="logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="TraceLab home">
+        <img class="brand-mark" src="logo.svg" alt="">
+        <span><strong>TraceLab</strong><small>Digital forensics essentials</small></span>
+      </a>
+      <span class="local-badge"><span class="dot"></span> Local-only processing</span>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">Investigation workspace</div>
+      <h1>Digital evidence, clearly examined.</h1>
+      <p>Inspect files and records with privacy-conscious tools that run in this browser. This is an educational helper, not a forensic acquisition suite.</p>
+    </section>
+    <div class="layout">
+      <nav class="sidebar" aria-label="Tools">
+        <div class="nav-label">Examine</div>
+        <button class="nav-button active" data-tab="analyzer"><span>◈</span> File analyzer</button>
+        <button class="nav-button" data-tab="hex"><span>▤</span> Hex &amp; entropy</button>
+        <button class="nav-button" data-tab="compare"><span>⇄</span> Compare files</button>
+        <button class="nav-button" data-tab="network"><span>⌁</span> PCAP reader</button>
+        <div class="nav-label">Investigate</div>
+        <button class="nav-button" data-tab="logs"><span>≡</span> Log workbench</button>
+        <button class="nav-button" data-tab="timeline"><span>◷</span> Timeline</button>
+        <button class="nav-button" data-tab="case"><span>▣</span> Case &amp; evidence</button>
+        <button class="nav-button" data-tab="osint"><span>↗</span> Public-source links</button>
+        <button class="nav-button" data-tab="quick"><span>⌘</span> Quick tools</button>
+        <button class="nav-button" data-tab="about"><span>ⓘ</span> About &amp; limits</button>
+      </nav>
+      <main class="main">
+        <section class="dropzone" id="dropzone">
+          <div class="drop-copy"><div class="file-icon">＋</div><div><strong id="dropTitle">Drop evidence file here</strong><span id="dropSubtitle">or choose a file · contents remain in this browser tab</span></div></div>
+          <div class="actions"><button class="btn" id="clearFile" type="button">Clear file</button><button class="btn primary" id="chooseFile" type="button">Choose file</button><input id="fileInput" type="file"></div>
+        </section>
+        <div class="file-summary" id="fileSummary" aria-live="polite">No file selected.</div>
+
+        <section class="tab-view active" id="tab-analyzer">
+          <div class="section-title"><h2>Integrity hashes</h2><span class="hint">Digest text is shortened; Copy always copies the full value</span></div>
+          <div class="cards" id="hashCards">
+            <article class="card hash-card" data-alg="SHA-256"><div class="hash-top"><strong>SHA-256 <span class="hash-tag">RECOMMENDED</span></strong><span class="status">Waiting</span></div><div class="hash-value">—</div><div class="hash-tools"><span class="muted">256-bit</span><span><button class="btn small reveal" type="button">Show full</button> <button class="btn small copy" type="button">Copy</button></span></div></article>
+            <article class="card hash-card" data-alg="SHA-384"><div class="hash-top"><strong>SHA-384</strong><span class="status">Waiting</span></div><div class="hash-value">—</div><div class="hash-tools"><span class="muted">384-bit</span><span><button class="btn small reveal" type="button">Show full</button> <button class="btn small copy" type="button">Copy</button></span></div></article>
+            <article class="card hash-card" data-alg="SHA-512"><div class="hash-top"><strong>SHA-512</strong><span class="status">Waiting</span></div><div class="hash-value">—</div><div class="hash-tools"><span class="muted">512-bit</span><span><button class="btn small reveal" type="button">Show full</button> <button class="btn small copy" type="button">Copy</button></span></div></article>
+            <article class="card hash-card" data-alg="MD5"><div class="hash-top"><strong>MD5 <span class="hash-tag legacy">LEGACY</span></strong><span class="status">Waiting</span></div><div class="hash-value">—</div><div class="hash-tools"><span class="muted">Not collision-resistant</span><span><button class="btn small reveal" type="button">Show full</button> <button class="btn small copy" type="button">Copy</button></span></div></article>
+          </div>
+          <div class="progress" aria-label="Hash processing status"><span id="progressBar"></span></div><p class="status" id="hashStatus">Choose a file to begin. Cryptographic hashing requires HTTPS or localhost in most browsers.</p>
+          <section class="panel"><div class="section-title"><h2>File properties &amp; signature</h2><span class="hint">Browser values and observed bytes are distinguished</span></div><article class="card"><div class="meta-grid" id="metadata"><p class="empty">Select a file to inspect properties.</p></div></article></section>
+          <section class="panel"><div class="section-title"><h2>Image inspection</h2><span class="hint">Browser preview and metadata are identified separately</span></div><article class="card"><div id="imageInfo" class="status">Select an image file. EXIF extraction is not currently supported.</div><img id="imagePreview" alt="Selected image preview" hidden></article></section>
+          <section class="panel row"><button class="btn" id="exportReport" type="button">Export selected file report (JSON)</button><span class="status">No evidence bytes are included in the report.</span></section>
+        </section>
+
+        <section class="tab-view" id="tab-hex">
+          <div class="section-title"><h2>Hex viewer &amp; entropy</h2><span class="hint">Read-only byte inspection</span></div>
+          <article class="card"><div class="hex-toolbar"><label for="offsetInput">Offset</label><input id="offsetInput" type="number" min="0" value="0" step="16"><button class="btn small" id="prevBytes" type="button">← Previous</button><button class="btn small" id="nextBytes" type="button">Next →</button><span class="status" id="hexStatus">Select a file to view bytes</span></div><pre class="hex-view" id="hexView">No file selected.</pre></article>
+          <section class="panel"><div class="section-title"><h2>Byte entropy</h2><span class="hint">Shannon entropy, 0–8 bits per byte</span></div><article class="card"><div id="entropyOverall" class="status">Select a file to calculate entropy.</div><div id="entropyChart" class="entropy-chart" role="img" aria-label="Entropy by file region"></div><p class="status">High entropy can occur in compressed/encrypted files and ordinary binary data. It is a statistical indicator, not a malware finding.</p></article></section>
+          <section class="panel"><div class="section-title"><h2>UTF-8 preview (first 32 KB)</h2></div><article class="card"><textarea class="preview-text" id="textPreview" readonly></textarea><div id="previewStatus" class="status">Read-only browser decoding.</div></article></section>
+        </section>
+
+        <section class="tab-view" id="tab-compare">
+          <div class="section-title"><h2>File comparison</h2><span class="hint">Compare size, signature and SHA-256</span></div><article class="card"><label class="field">Second file <input type="file" id="compareInput"></label><button class="btn primary" id="compareButton" type="button">Compare selected files</button><p class="status" id="compareStatus">Choose a primary file above and a second file here.</p><div class="table-wrap"><table id="compareTable"></table></div></article>
+        </section>
+
+        <section class="tab-view" id="tab-network">
+          <div class="section-title"><h2>Classic PCAP reader</h2><span class="hint">Offline · constrained parser</span></div><article class="card"><label class="field">PCAP / PCAPNG file <input type="file" id="pcapInput" accept=".pcap,.pcapng,application/vnd.tcpdump.pcap"></label><button class="btn primary" id="parsePcap" type="button">Inspect capture</button><div class="notice">Supports classic PCAP, Ethernet link type, IPv4 TCP/UDP packets. PCAPNG, IPv6, fragmented packets and other link types are reported unsupported. Capture is parsed locally; no extraction or transmission.</div><p class="status" id="pcapStatus">No capture loaded.</p><div class="filter-row"><input type="search" id="packetFilter" placeholder="Filter protocol / IP / port"><label class="status">From (local) <input type="datetime-local" id="packetFrom"></label><label class="status">To (local) <input type="datetime-local" id="packetTo"></label><button class="btn small" id="exportPackets" type="button">Export summary CSV</button></div><div class="table-wrap"><table><thead><tr><th>#</th><th>Timestamp (UTC)</th><th>Protocol</th><th>Source</th><th>Destination</th><th>Length</th></tr></thead><tbody id="packetRows"></tbody></table></div><h3>Selected packet</h3><pre class="hex-view" id="packetDetail">Select a packet row to inspect its parsed summary.</pre></article>
+        </section>
+
+        <section class="tab-view" id="tab-logs">
+          <div class="section-title"><h2>Log workbench</h2><span class="hint">Plain text, JSON lines, and XML text exports</span></div><article class="card"><label class="field">Log file <input type="file" id="logInput" accept=".log,.txt,.json,.jsonl,.xml,.csv"></label><div class="filter-row"><input type="search" id="logSearch" placeholder="Filter message or source"><select id="severityFilter"><option value="">All severities</option><option>critical</option><option>error</option><option>warning</option><option>info</option></select><label class="status">From (local) <input type="datetime-local" id="logFrom"></label><label class="status">To (local) <input type="datetime-local" id="logTo"></label><button class="btn small" id="exportLogs" type="button">Export filtered CSV</button></div><p class="status" id="logStatus">Import a text log to begin. Binary EVTX is not parsed.</p><div class="table-wrap"><table><thead><tr><th>Line</th><th>Timestamp / status</th><th>Severity</th><th>Source</th><th>Original line</th></tr></thead><tbody id="logRows"></tbody></table></div></article>
+          <div class="notice">Heuristic keywords such as “failed login” indicate potential events only. They do not confirm an attack or compromise.</div>
+        </section>
+
+        <section class="tab-view" id="tab-timeline">
+          <div class="section-title"><h2>Investigation timeline</h2><span class="hint">Imported supported timestamps and manual notes</span></div><article class="card"><div class="filter-row"><input type="datetime-local" id="noteTime"><input type="text" id="noteSource" placeholder="Source"><input type="text" id="noteDescription" placeholder="Observation / event"><button class="btn primary" id="addNote" type="button">Add note</button><button class="btn" id="addFileTimeline" type="button">Add selected file timestamp</button></div><div class="filter-row"><button class="btn small" id="timelineSort" type="button">Sort chronologically</button><button class="btn small" id="exportTimeline" type="button">Export timeline CSV</button></div><div class="table-wrap"><table><thead><tr><th>Time (UTC)</th><th>Original time</th><th>Source</th><th>Description</th><th>Parsing / confidence</th></tr></thead><tbody id="timelineRows"></tbody></table></div></article></section>
+
+        <section class="tab-view" id="tab-case">
+          <div class="section-title"><h2>Case &amp; evidence management</h2><span class="hint">Stored case fields contain metadata, never file contents</span></div>
+          <article class="card"><div class="form-grid"><label class="field">Case ID<input id="caseId" type="text" placeholder="CASE-001"></label><label class="field">Case title<input id="caseTitle" type="text" placeholder="Investigation title"></label><label class="field full">Examiner notes<textarea id="caseNotes" rows="3" placeholder="Record observations and acquisition context"></textarea></label></div><div class="actions"><button class="btn primary" id="saveCase" type="button">Save case details</button><button class="btn" id="addEvidence" type="button">Add selected file to inventory</button><button class="btn" id="exportCase" type="button">Export case JSON</button><button class="btn" id="exportInventory" type="button">Export inventory CSV</button><label class="btn file-button">Import case JSON<input id="importCase" type="file" accept="application/json,.json"></label><button class="btn danger" id="clearCase" type="button">Clear stored case</button></div><p id="storageStatus" class="status">Case data is saved in this browser’s local storage when explicitly saved. Browser storage is not encrypted or tamper-proof.</p><div class="table-wrap"><table><thead><tr><th>Evidence ID</th><th>Name</th><th>Size</th><th>SHA-256</th><th>Type</th><th>Added</th></tr></thead><tbody id="evidenceRows"></tbody></table></div><h3>Application action log</h3><div class="table-wrap"><table><thead><tr><th>UTC time</th><th>Action</th><th>Details</th></tr></thead><tbody id="auditRows"></tbody></table></div></article>
+        </section>
+
+        <section class="tab-view" id="tab-osint">
+          <div class="section-title"><h2>Public-source research links</h2><span class="hint">Links only — searches occur on external sites only if you open them</span></div><article class="card"><div class="form-grid"><label class="field">Username<input type="text" id="osintUsername" autocomplete="off" placeholder="Enter a public username"></label><label class="field">Domain<input type="text" id="osintDomain" autocomplete="off" placeholder="example.org"></label><label class="field">Public IP<input type="text" id="osintIp" autocomplete="off" placeholder="203.0.113.1"></label></div><button class="btn primary" id="buildOsint" type="button">Generate public research links</button><div id="osintLinks" class="link-list"></div><div class="notice">External sites may receive identifiers, your IP address, and browser metadata when opened. Review links before visiting. Search results do not prove that an identifier belongs to a person. Do not use this for private data, bypassing access controls, or harassment.</div><h3>Manual research notes</h3><div class="filter-row"><input type="text" id="osintUrl" placeholder="Public source URL"><input type="text" id="osintObservation" placeholder="Observation, UTC timestamp, reliability"><button class="btn small" id="addOsintNote" type="button">Add note</button><button class="btn small" id="exportOsint" type="button">Export notes JSON</button></div><ul id="osintNotes"></ul></article></section>
+
+        <section class="tab-view" id="tab-quick">
+          <div class="section-title"><h2>Quick tools</h2><span class="hint">Encoding is not encryption</span></div><div class="tool-grid">
+            <article class="card"><h3>Text SHA-256</h3><textarea id="textHashInput" class="tool-input" placeholder="Text to hash"></textarea><button class="btn small primary" id="textHashButton" type="button">Hash text</button><output id="textHashOutput" class="tool-output">Digest appears here.</output></article>
+            <article class="card"><h3>Base64 encode / decode</h3><textarea id="base64Input" class="tool-input" placeholder="Unicode text or Base64"></textarea><div class="actions"><button class="btn small" id="encodeButton" type="button">Encode UTF-8</button><button class="btn small" id="decodeButton" type="button">Decode UTF-8</button></div><output id="base64Output" class="tool-output">Result appears here.</output></article>
+            <article class="card"><h3>Hex ↔ text</h3><textarea id="hexTextInput" class="tool-input" placeholder="Text or hex bytes (e.g. 48 69)"></textarea><div class="actions"><button class="btn small" id="toHex" type="button">Text to hex</button><button class="btn small" id="fromHex" type="button">Hex to text</button><button class="btn small" id="checkUtf8" type="button">Check UTF-8 bytes</button></div><output id="hexTextOutput" class="tool-output"></output></article>
+            <article class="card"><h3>URL, JSON &amp; ROT13</h3><textarea id="formatInput" class="tool-input" placeholder="Text, URL component, or JSON"></textarea><div class="actions"><button class="btn small" id="urlEncode" type="button">URL encode</button><button class="btn small" id="urlDecode" type="button">URL decode</button><button class="btn small" id="formatJson" type="button">Format JSON</button><button class="btn small" id="rot13" type="button">ROT13</button></div><output id="formatOutput" class="tool-output"></output></article>
+            <article class="card"><h3>Unix timestamp</h3><input id="timestampInput" type="text" placeholder="Seconds or milliseconds"><button class="btn small" id="timestampButton" type="button">Convert</button><output id="timestampOutput" class="tool-output"></output></article>
+            <article class="card"><h3>Signature reference</h3><p>Leading byte examples. These alone do not prove a file’s complete format or safety.</p><div class="tool-output">PDF 25 50 44 46 · PNG 89 50 4E 47<br>JPEG FF D8 FF · ZIP 50 4B 03 04<br>GIF 47 49 46 38 · ELF 7F 45 4C 46</div></article>
+          </div>
+        </section>
+
+        <section class="tab-view" id="tab-about">
+          <div class="section-title"><h2>About &amp; limitations</h2></div><article class="card prose">
+            <p><strong>TraceLab</strong> runs without a backend or remote library. File contents are read by this page only; case records, if saved, use the browser’s local storage and may persist on this device. Clear case data on shared devices. No evidence is uploaded automatically.</p>
+            <ul><li>Secure context: Web Crypto SHA algorithms require HTTPS or localhost in browsers. MD5 uses an in-page implementation and is for legacy comparison only.</li><li>Hash size limit: files larger than 128 MiB are rejected to avoid unbounded memory use. Hashing is not incremental and can temporarily use additional memory.</li><li>Metadata: standard browser file properties and basic signatures are available. This build does not parse EXIF, full document metadata, PDF page trees, or embedded content.</li><li>PCAP: only classic PCAP, Ethernet, IPv4, TCP/UDP basic records. PCAPNG and other link/network formats are unsupported. Parser output is not a complete protocol analysis.</li><li>Logs/timeline: simple transparent timestamp and keyword heuristics; formats vary. Original text remains visible. UTC conversion is only made for timestamps with explicit timezone or recognized epoch values.</li><li>Not a forensic acquisition tool: no write blocking, deleted data recovery, verified chain-of-custody, tamper-proof audit, malware verdict, or court-readiness. Validate important results with established tools and controlled procedures.</li></ul>
+            <p>No third-party libraries are used. Static HTML/CSS/JavaScript is suitable for local use and GitHub Pages.</p>
+          </article>
+        </section>
+      </main>
+    </div>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
