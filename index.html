@@ -25,7 +25,8 @@
     <section class="hero">
       <div class="eyebrow">Investigation workspace</div>
       <h1>Digital evidence, clearly examined.</h1>
-      <p>Inspect files and records with privacy-conscious tools that run in this browser. This is an educational helper, not a forensic acquisition suite.</p>
+      <p>Inspect files and records with privacy-conscious tools that run in this browser.
+      </p>
     </section>
     <div class="layout">
       <nav class="sidebar" aria-label="Tools">
@@ -110,6 +111,7 @@
             <p><strong>TraceLab</strong> runs without a backend or remote library. File contents are read by this page only; case records, if saved, use the browser’s local storage and may persist on this device. Clear case data on shared devices. No evidence is uploaded automatically.</p>
             <ul><li>Secure context: Web Crypto SHA algorithms require HTTPS or localhost in browsers. MD5 uses an in-page implementation and is for legacy comparison only.</li><li>Hash size limit: files larger than 128 MiB are rejected to avoid unbounded memory use. Hashing is not incremental and can temporarily use additional memory.</li><li>Metadata: standard browser file properties and basic signatures are available. This build does not parse EXIF, full document metadata, PDF page trees, or embedded content.</li><li>PCAP: only classic PCAP, Ethernet, IPv4, TCP/UDP basic records. PCAPNG and other link/network formats are unsupported. Parser output is not a complete protocol analysis.</li><li>Logs/timeline: simple transparent timestamp and keyword heuristics; formats vary. Original text remains visible. UTC conversion is only made for timestamps with explicit timezone or recognized epoch values.</li><li>Not a forensic acquisition tool: no write blocking, deleted data recovery, verified chain-of-custody, tamper-proof audit, malware verdict, or court-readiness. Validate important results with established tools and controlled procedures.</li></ul>
             <p>No third-party libraries are used. Static HTML/CSS/JavaScript is suitable for local use and GitHub Pages.</p>
+            <p><strong>Made by Akash Roy Chowdhury</strong> · Instagram: <a href="https://instagram.com/akashrc0" target="_blank" rel="noopener noreferrer">@akashrc0</a></p>
           </article>
         </section>
       </main>
